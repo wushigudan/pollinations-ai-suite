@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 文字转语音对话 - 白衬衫 AI</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-yellow: #ffd700;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --border-color: #333333;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: min(95%, 800px);
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        /* Header Styles */
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--accent-yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .author {
+            font-size: 0.9rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            text-decoration: none;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-yellow {
+            background-color: rgba(255, 215, 0, 0.1);
+            color: var(--accent-yellow);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .badge-blue {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-green {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.badge-purple, .badge.badge-accent {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .badge.badge-purple {
+            background-color: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.1);
+        }
+        
+        .badge.badge-purple:hover {
+            transform: translateY(-3px) rotate(-2deg);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            background-color: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-purple);
+        }
+        
+        .badge.badge-purple:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .badge.badge-accent {
+            background-color: rgba(236, 72, 153, 0.15);
+            color: #ec4899;
+            border-color: rgba(236, 72, 153, 0.3);
+            box-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
+        }
+        
+        .badge.badge-accent:hover {
+            transform: translateY(-3px) rotate(2deg);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            background-color: rgba(236, 72, 153, 0.2);
+        }
+        
+        .badge.badge-accent:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+        }
+
+        .main-content {
+            background-color: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .voice-selector {
+            margin-bottom: 2rem;
+        }
+
+        .voice-selector label {
+            display: block;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .voice-option {
+            padding: 1rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .voice-option:hover {
+            border-color: var(--accent-blue);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .voice-option.selected {
+            border-color: var(--accent-blue);
+            background-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .voice-option small {
+            display: block;
+            margin-top: 0.25rem;
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .audio-player::-webkit-media-controls-panel {
+            background-color: var(--bg-primary);
+        }
+
+        .loading {
+            text-align: center;
+            margin: 2rem 0;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .status.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .status.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .rate-limit-info {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: var(--bg-secondary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                width: 95%;
+                margin: 1rem auto;
+                padding: 1rem;
+            }
+
+            .voice-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1>AI 文字转语音对话</h1>
+            <h2>基于 OpenAI TTS 语音服务</h2>
+            <p class="author">by白衬衫</p>
+            <div class="badges">
+                <a href="/" class="badge badge-purple">🎨 AI 绘画</a>
+                <a href="/chat.html" class="badge badge-accent">💬 AI 对话</a>
+                <span class="badge badge-yellow">免费使用</span>
+                <span class="badge badge-blue">实时转换</span>
+                <span class="badge badge-green">多种音色</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="voice-selector">
+                <label>选择 AI 声音：</label>
+                <div class="voice-grid">
+                    <div class="voice-option" data-voice="alloy">
+                        Alloy<br>
+                        <small>通用音色</small>
+                    </div>
+                    <div class="voice-option" data-voice="echo">
+                        Echo<br>
+                        <small>清晰有力</small>
+                    </div>
+                    <div class="voice-option" data-voice="fable">
+                        Fable<br>
+                        <small>温暖舒适</small>
+                    </div>
+                    <div class="voice-option" data-voice="onyx">
+                        Onyx<br>
+                        <small>庄重威严</small>
+                    </div>
+                    <div class="voice-option" data-voice="nova">
+                        Nova<br>
+                        <small>自然友好</small>
+                    </div>
+                    <div class="voice-option" data-voice="shimmer">
+                        Shimmer<br>
+                        <small>轻快活泼</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-header">
+                    <span>输入文本内容：</span>
+                    <span class="language-note">支持中文和英文</span>
+                </div>
+                <textarea placeholder="输入要转换成语音的文本内容..."></textarea>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="previewBtn" disabled>试听</button>
+                    <button class="btn btn-primary" id="downloadBtn" disabled>下载</button>
+                </div>
+            </div>
+
+            <audio class="audio-player" controls style="display: none;">
+                您的浏览器不支持音频播放。
+            </audio>
+
+            <div class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>正在生成语音...</p>
+            </div>
+
+            <div class="status" style="display: none;"></div>
+        </main>
+
+        <div class="rate-limit-info">
+            请求限制：每 IP 每 3 秒一次请求
+        </div>
+
+        <nav class="nav-links">
+            <a href="/">返回首页</a>
+            <a href="/chat.html">文字对话</a>
+        </nav>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const voiceOptions = document.querySelectorAll('.voice-option');
+        const textarea = document.querySelector('textarea');
+        const previewBtn = document.getElementById('previewBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const audioPlayer = document.querySelector('.audio-player');
+        const loading = document.querySelector('.loading');
+        const status = document.querySelector('.status');
+
+        let selectedVoice = null;
+        let lastRequestTime = 0;
+        const REQUEST_INTERVAL = 3000; // 3秒间隔限制
+
+        // 选择音色
+        voiceOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                voiceOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedVoice = option.dataset.voice;
+                updateButtonState();
+            });
+        });
+
+        // 自动调整文本框高度
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+            updateButtonState();
+        });
+
+        // 更新按钮状态
+        function updateButtonState() {
+            const hasText = textarea.value.trim().length > 0;
+            const hasVoice = selectedVoice !== null;
+            previewBtn.disabled = !hasText || !hasVoice;
+            downloadBtn.disabled = !hasText || !hasVoice;
+        }
+
+        // 显示状态消息
+        function showStatus(message, type = 'error') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 5000);
+        }
+
+        // 检查请求间隔
+        function canMakeRequest() {
+            const now = Date.now();
+            if (now - lastRequestTime < REQUEST_INTERVAL) {
+                const waitTime = Math.ceil((REQUEST_INTERVAL - (now - lastRequestTime)) / 1000);
+                showStatus(`请等待 ${waitTime} 秒后再试`);
+                return false;
+            }
+            return true;
+        }
+
+        // 生成语音
+        async function generateVoice(isPreview = true) {
+            if (!canMakeRequest()) return;
+
+            const text = textarea.value.trim();
+            if (!text || !selectedVoice) return;
+
+            loading.style.display = 'block';
+            audioPlayer.style.display = 'none';
+            previewBtn.disabled = true;
+            downloadBtn.disabled = true;
+
+            try {
+                lastRequestTime = Date.now();
+                
+                // 使用 GET 方式请求语音合成
+                const encodedText = encodeURIComponent(text);
+                const response = await fetch(`https://text.pollinations.ai/${encodedText}?model=openai-audio&voice=${selectedVoice}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+
+                if (isPreview) {
+                    // 预览音频
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.style.display = 'block';
+                    audioPlayer.play();
+                    showStatus('语音生成成功', 'success');
+                } else {
+                    // 下载音频
+                    const a = document.createElement('a');
+                    a.href = audioUrl;
+                    a.download = `voice_${Date.now()}.mp3`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showStatus('语音文件已开始下载', 'success');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus(error.message || '生成失败，请稍后重试');
+            } finally {
+                loading.style.display = 'none';
+                previewBtn.disabled = false;
+                downloadBtn.disabled = false;
+            }
+        }
+
+        // 绑定按钮事件
+        previewBtn.addEventListener('click', () => generateVoice(true));
+        downloadBtn.addEventListener('click', () => generateVoice(false));
+
+        // 默认选中 Nova 声音
+        const defaultVoice = document.querySelector('[data-voice="nova"]');
+        if (defaultVoice) {
+            defaultVoice.click();
+        }
+    </script>
+</body>
+</html> 

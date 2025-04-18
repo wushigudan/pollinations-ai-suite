@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白衬衫 AI</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1>白衬衫 AI</h1>
+            <h2>在几秒钟内创建令人惊叹的 AI 生成图像</h2>
+            <div class="badges">
+                <a href="/chat.html" class="badge badge-green">💬 AI 对话</a>
+                <a href="/tts.html" class="badge badge-accent">🔊 语音合成</a>
+                <span class="badge badge-yellow">100% 免费</span>
+                <span class="badge badge-blue">无需登录</span>
+                <span class="badge badge-purple">无限生成</span>
+            </div>
+        </header>
+
+        <main class="generator-panel">
+            <div class="input-group">
+                <div class="input-header">
+                    <span>描述提示词</span>
+                    <span class="language-note">请用英文输入以获得最佳效果</span>
+                </div>
+                <textarea 
+                    class="prompt-input"
+                    placeholder="A very beautiful smiling woman called Elle wearing a long white satin dress..."
+                    rows="4"
+                ></textarea>
+            </div>
+
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>选择模型</label>
+                    <select id="modelSelect">
+                        <option value="Flux">Flux - 适合一般用途的基础模型</option>
+                        <option value="Flux-pro">Flux-pro - 增强版Flux，提供更高质量的图像</option>
+                        <option value="Flux-realism">Flux-realism - 专注于真实感和照片级质量</option>
+                        <option value="Flux-anime">Flux-anime - 专为动漫和卡通风格优化</option>
+                        <option value="Flux-3d">Flux-3d - 生成3D渲染风格的图像</option>
+                        <option value="Flux-cablyai">Flux-cablyai - 混合风格，结合多种艺术元素</option>
+                        <option value="Turbo">Turbo - 快速生成，适合原型设计</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label>图像尺寸</label>
+                    <select id="sizeSelect">
+                        <option value="1024x1024">方形 (1024x1024)</option>
+                        <option value="1280x720">横向 (1280x720)</option>
+                        <option value="720x1280">纵向 (720x1280)</option>
+                        <option value="1920x1080">1080p (1920x1080)</option>
+                        <option value="1080x1080">Instagram (1080x1080)</option>
+                        <option value="1200x675">Twitter (1200x675)</option>
+                        <option value="1200x630">Facebook (1200x630)</option>
+                        <option value="3840x2160">4K (3840x2160)</option>
+                        <option value="custom">自定义尺寸</option>
+                    </select>
+                    <div id="customSize" class="custom-size hidden">
+                        <div class="size-inputs">
+                            <input type="number" id="widthInput" placeholder="宽度" min="64" max="4096">
+                            <span>x</span>
+                            <input type="number" id="heightInput" placeholder="高度" min="64" max="4096">
+                        </div>
+                        <div class="size-note">支持 64-4096 像素</div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label>随机种子</label>
+                    <div class="seed-control">
+                        <input type="number" id="seedInput" placeholder="输入种子值">
+                        <button id="randomSeedBtn" title="生成随机种子">🎲</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="options-grid">
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="options" value="noStyle"> 无风格
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="options" value="noColor"> 无色彩
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="options" value="noLight"> 无光照
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="options" value="noComp"> 无构图
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="quality" value="noPrompt"> 免脱提示词
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="quality" value="highQuality"> 高质量
+                    </label>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="clearPrompt()">清除</button>
+                <button class="btn btn-secondary" onclick="randomPrompt()">随机提示词</button>
+                <button class="btn btn-primary" id="generateBtn">生成</button>
+                <button class="btn btn-secondary" id="compareBtn">对比所有模型</button>
+            </div>
+
+            <div id="result" class="result-container"></div>
+        </main>
+    </div>
+
+    <script src="/app.js"></script>
+
+    <style>
+        .chat-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #00a8ff, #0097e6);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 168, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .chat-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 168, 255, 0.4);
+            background: linear-gradient(135deg, #0097e6, #00a8ff);
+        }
+        
+        .chat-link:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 168, 255, 0.3);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            text-decoration: none;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge.badge-green {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green, #10b981);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .badge.badge-green:hover {
+            transform: translateY(-3px) rotate(-2deg);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+        
+        .badge.badge-green:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.badge-accent {
+            background-color: rgba(236, 72, 153, 0.15);
+            color: #ec4899;
+            border-color: rgba(236, 72, 153, 0.3);
+            box-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .badge.badge-accent:hover {
+            transform: translateY(-3px) rotate(2deg);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            background-color: rgba(236, 72, 153, 0.2);
+            border-color: #ec4899;
+        }
+        
+        .badge.badge-accent:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+        }
+    </style>
+</body>
+</html> 

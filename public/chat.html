@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 助手 - Pollinations.AI</title>
+    <link rel="stylesheet" href="chat-styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1>AI 助手</h1>
+            <h2>基于 Pollinations.AI 的智能对话系统</h2>
+            <p class="author">by白衬衫</p>
+            <div class="badges">
+                <span class="badge badge-yellow">实时对话</span>
+                <span class="badge badge-blue">流式响应</span>
+                <span class="badge badge-green">智能助手</span>
+                <a href="/" class="badge badge-purple">🎨 AI 绘画</a>
+                <a href="/tts.html" class="badge badge-accent">🔊 语音合成</a>
+            </div>
+        </header>
+
+        <main class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- 消息将在这里动态添加 -->
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        class="message-input" 
+                        placeholder="输入消息..." 
+                        rows="1"
+                        autofocus
+                    ></textarea>
+                    <button id="sendButton" class="send-button">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-controls">
+                    <select id="modelSelect" class="model-select">
+                        <option value="openai">OpenAI</option>
+                        <option value="mistral">Mistral</option>
+                        <option value="claude-hybridspace">Claude</option>
+                    </select>
+                    <button id="clearButton" class="clear-button">清除对话</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="chat.js"></script>
+</body>
+</html> 
